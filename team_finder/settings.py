@@ -1,5 +1,18 @@
+import mimetypes
 from pathlib import Path
 from decouple import config
+
+
+class DebugMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        print(f"=== REQUEST: {request.path} ===")
+        response = self.get_response(request)
+        print(f"=== RESPONSE STATUS: {response.status_code} ===")
+        return response
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,7 +22,7 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -21,9 +34,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "projects",
+    "users",
 ]
 
 MIDDLEWARE = [
+    "team_finder.settings.DebugMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -56,14 +72,21 @@ WSGI_APPLICATION = "team_finder.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("POSTGRES_DB"),
+#         "USER": config("POSTGRES_USER"),
+#         "PASSWORD": config("POSTGRES_PASSWORD"),
+#         "HOST": config("POSTGRES_HOST", default="localhost"),
+#         "PORT": config("POSTGRES_PORT", default=5432, cast=int),
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("POSTGRES_DB"),
-        "USER": config("POSTGRES_USER"),
-        "PASSWORD": config("POSTGRES_PASSWORD"),
-        "HOST": config("POSTGRES_HOST", default="localhost"),
-        "PORT": config("POSTGRES_PORT", default=5432, cast=int),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -116,3 +139,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "users.User"

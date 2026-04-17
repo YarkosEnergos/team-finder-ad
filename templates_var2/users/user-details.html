@@ -58,6 +58,28 @@
         </div>
     </div>
 
+    <h3>Навыки</h3>
+
+    <div class="skills-container" id="skills-container" data-user-id="{{ user.id }}">
+        {% for skill in user.skills.all %}
+            <div class="skill-chip" data-id="{{ skill.id }}">
+                <span>{{skill.name}}</span>
+                {% if request.user.id == user.id %}
+                    <button type="button" class="remove-skill-btn" title="Удалить">
+                        ×
+                    </button>
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if request.user.id == user.id %}
+            <button type="button" class="add-skill-btn" id="add-skill-btn">+ Добавить навык</button>
+        {% endif %}
+    </div>
+    <div class="skill-input-wrapper hidden" id="skill-input-wrapper">
+        <input type="text" id="skill-input" placeholder="Введите навык...">
+        <ul class="skill-suggestions hidden" id="skill-suggestions"></ul>
+    </div>
+
     <h3>Проекты ({{ user.owned_projects.all|length }})</h3>
 
     <div class="collapsed-project-grid">
