@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import RegisterForm, CustomUserChangeForm
 from .models import User, Skill
 
 admin.site.register(Skill)
@@ -19,11 +19,11 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    add_form = CustomUserCreationForm
+    add_form = RegisterForm
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'name', 'surname', 'phone', 'password1', 'password2'),
+            'fields': ('email', 'name', 'surname', 'phone', 'password'),
         }),
     )

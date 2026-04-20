@@ -1,10 +1,14 @@
 import json
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views import View
+from django.contrib.auth.views import PasswordChangeView
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth import login
+from django.urls import reverse_lazy
 
 from .models import User, Skill
+from .forms import RegisterForm, CustomUserChangeForm
 
 
 class UserListView(ListView):
@@ -106,3 +110,42 @@ class UsersRemoveSkillsView(View):
 
         request.user.skills.remove(Skill.objects.get(pk=skill_id))
         return JsonResponse({'status': 'ok'})
+
+
+# class RegisterView(View):
+#     def get(self, request):
+#         form = RegisterForm()
+#         return render(request, 'users/register.html', context={'form': form})
+
+
+class RegisterCreateView(CreateView):
+    model = User
+    form_class = RegisterForm
+    template_name = 'users/register.html'
+    success_url = reverse_lazy('projects:list')
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+
+        login(self.request, user)
+
+        return redirect(self.success_url)
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    def get_success_url(self):
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
+
+
+class UserUpdateView(UpdateView):
+    model = User
+    form_class = CustomUserChangeForm
+    template_name = 'users/edit_profile.html'
+
+    def get_object(self):
+        return self.request.user
+
+    def get_success_url(self):
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})

@@ -1,6 +1,9 @@
-import mimetypes
 from pathlib import Path
 from decouple import config
+
+
+LOGOUT_REDIRECT_URL = '/projects/list/'
+LOGIN_REDIRECT_URL = '/projects/list/'
 
 
 class DebugMiddleware:

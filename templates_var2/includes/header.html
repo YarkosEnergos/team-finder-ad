@@ -49,13 +49,18 @@
     <div class="sidebar-content">
         <a href="/users/{{ request.user.id }}/"><span>{% include 'includes/svg/profile.html' %} Мой профиль</span></a>
         <a href="/users/edit-profile/"><span>{% include 'includes/svg/settings.html' %} Редактировать профиль</span></a>
-        <a href="/users/change-password/"><span>{% include 'includes/svg/lock.html' %} Сменить пароль</span></a>
+        <a href="/users/password_change/"><span>{% include 'includes/svg/lock.html' %} Сменить пароль</span></a>
         <a href="#"
            class="share-button"
            data-url="/users/{{ request.user.id }}">
             {% include 'includes/svg/share.html' %} Поделиться профилем
         </a>
         <hr class="sidebar-divider">
-        <a href="/users/logout/"><span style="color: #e7000b;">{% include 'includes/svg/leave.html' %} Выйти</span></a>
+        <form method="post" action="/users/logout/" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="button nav-link logout-button">
+                <span style="color: #e7000b;">{% include 'includes/svg/leave.html' %} Выйти</span>
+            </button>
+        </form>
     </div>
 </div>
