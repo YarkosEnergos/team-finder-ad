@@ -1,9 +1,11 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views import View
 from projects.models import Project
-
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.urls import reverse_lazy
+
+from .forms import ProjectModelForm
 
 
 class ProjectListView(ListView):
@@ -51,3 +53,40 @@ class ProjectParticipate(View):
             project.participants.add(request.user)
             participant = True
         return JsonResponse({"status": "ok", "participant": participant})
+
+
+class ProjectCreateView(CreateView):
+    model = Project
+    form_class = ProjectModelForm
+    template_name = 'projects/create-project.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['is_edit'] = False
+        return context
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        response = super().form_valid(form)
+
+        self.object.participants.add(self.request.user)
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})
+
+
+class ProjectUpdateView(UpdateView):
+    model = Project
+    form_class = ProjectModelForm
+    template_name = 'projects/create-project.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['is_edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})

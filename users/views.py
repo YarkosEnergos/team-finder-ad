@@ -112,12 +112,6 @@ class UsersRemoveSkillsView(View):
         return JsonResponse({'status': 'ok'})
 
 
-# class RegisterView(View):
-#     def get(self, request):
-#         form = RegisterForm()
-#         return render(request, 'users/register.html', context={'form': form})
-
-
 class RegisterCreateView(CreateView):
     model = User
     form_class = RegisterForm
