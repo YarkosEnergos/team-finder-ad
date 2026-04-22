@@ -26,6 +26,32 @@
         {% endfor %}
     </div>
     {% include 'includes/project-fav-toggle.js' %}
+    {% if is_paginated %}
+    <div class="pagination">
+
+        {# PREVIOUS #}
+        {% if page_obj.has_previous %}
+            <a class="pagination-link"
+            href="?page={{ page_obj.previous_page_number }}">
+                ← Назад
+            </a>
+        {% endif %}
+
+        {# CURRENT INFO #}
+        <span class="pagination-info">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {# NEXT #}
+        {% if page_obj.has_next %}
+            <a class="pagination-link"
+            href="?page={{ page_obj.next_page_number }}">
+                Вперёд →
+            </a>
+        {% endif %}
+
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

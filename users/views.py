@@ -17,6 +17,7 @@ class UserListView(ListView):
     template_name = 'users/participants.html'
     ordering = ['id']
     context_object_name = 'participants'
+    paginate_by = 12
 
     def get_queryset(self):
         queryset = super().get_queryset()
