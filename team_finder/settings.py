@@ -1,9 +1,13 @@
+import os
 from pathlib import Path
+
+from common.constants import (LOGIN_PATH_REDIRECT_URL, LOGIN_PATH_URL,
+                              LOGOUT_PATH_REDIRECT_URL)
 from decouple import config
 
-
-LOGOUT_REDIRECT_URL = '/projects/list/'
-LOGIN_REDIRECT_URL = '/projects/list/'
+LOGOUT_REDIRECT_URL = LOGOUT_PATH_REDIRECT_URL
+LOGIN_REDIRECT_URL = LOGIN_PATH_REDIRECT_URL
+LOGIN_URL = LOGIN_PATH_URL
 
 
 class DebugMiddleware:
@@ -11,9 +15,7 @@ class DebugMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        print(f"=== REQUEST: {request.path} ===")
         response = self.get_response(request)
-        print(f"=== RESPONSE STATUS: {response.status_code} ===")
         return response
 
 
@@ -23,7 +25,7 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -56,7 +58,7 @@ ROOT_URLCONF = "team_finder.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / f"templates_var{config('TASK_VERSION', default='1')}"],
+        "DIRS": [BASE_DIR / "templates_var2"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -71,9 +73,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "team_finder.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -84,13 +83,6 @@ DATABASES = {
         "PORT": config("POSTGRES_PORT", default=5432, cast=int),
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 
 # Password validation

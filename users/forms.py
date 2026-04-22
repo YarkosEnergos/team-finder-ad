@@ -1,12 +1,11 @@
 import re
-from urllib.parse import urlparse
 
-from django.contrib.auth.forms import UserChangeForm, AuthenticationForm
+from common.validators import validate_github_url
 from django import forms
-from django.core.exceptions import ValidationError
-from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -40,7 +39,7 @@ class EmailAuthenticationForm(AuthenticationForm):
         fields = ('username', 'password')
 
 
-class CustomUserChangeForm(UserChangeForm):
+class NewUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('name', 'surname', 'phone',
@@ -74,16 +73,4 @@ class CustomUserChangeForm(UserChangeForm):
     def clean_github_url(self):
         github_url = self.cleaned_data.get('github_url')
 
-        if not github_url:
-            return github_url
-
-        parsed = urlparse(github_url)
-
-        if parsed.scheme not in ('http', 'https'):
-            raise ValidationError(
-                "Ссылка должна начинаться с http:// или https://")
-
-        if parsed.netloc not in ('github.com', 'www.github.com'):
-            raise ValidationError("Ссылка должна вести на github.com")
-
-        return github_url
+        return validate_github_url(github_url)

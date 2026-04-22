@@ -1,12 +1,14 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views import View
-from projects.models import Project
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.urls import reverse_lazy
+from http import HTTPStatus
 
-from .forms import ProjectModelForm
+from common.constants import PROJECT_PAGINATE_COUNT, STATUS_CLOSED, STATUS_OPEN
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.views import View
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from projects.forms import ProjectModelForm
+from projects.models import Project
 
 
 class ProjectListView(ListView):
@@ -14,30 +16,38 @@ class ProjectListView(ListView):
     ordering = ['-created_at']
     template_name = 'projects/project_list.html'
     context_object_name = 'projects'
-    paginate_by = 12
+    paginate_by = PROJECT_PAGINATE_COUNT
+
+    def get_queryset(self):
+        queryset = super().get_queryset(
+        ).select_related('owner').prefetch_related('participants')
+
+        return queryset
 
 
 class ProjectDetailView(DetailView):
     model = Project
     template_name = 'projects/project-details.html'
-    context_object_name = 'project'
 
 
 class ProjectCompleteview(LoginRequiredMixin, View):
-    login_url = 'users:login'
-
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
 
         if request.user != project.owner:
-            return JsonResponse({"status": "error", "message": "Forbidden"}, status=403)
+            return JsonResponse(
+                {"status": "error", "message": "Forbidden"},
+                status=HTTPStatus.FORBIDDEN
+            )
 
-        if project.status != 'open':
-            return JsonResponse({"status": "error", "message": "Project already closed"}, status=400)
+        if project.status != STATUS_OPEN:
+            return JsonResponse(
+                {"status": "error", "message": "Project already closed"},
+                status=HTTPStatus.BAD_REQUEST)
 
-        project.status = 'closed'
+        project.status = STATUS_CLOSED
         project.save()
-        return JsonResponse({"status": "ok", "project_status": "closed"})
+        return JsonResponse({"status": "ok", "project_status": STATUS_CLOSED})
 
 
 class ProjectParticipate(LoginRequiredMixin, View):
@@ -46,13 +56,16 @@ class ProjectParticipate(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
 
-        if request.user in project.participants.all():
+        if (is_participant := project.participants.filter(
+            pk=request.user.pk
+        ).exists()):
             project.participants.remove(request.user)
-            participant = False
         else:
             project.participants.add(request.user)
-            participant = True
-        return JsonResponse({"status": "ok", "participant": participant})
+
+        return JsonResponse(
+            {"status": "ok", "participant": not is_participant}
+        )
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -75,7 +88,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return response
 
     def get_success_url(self):
-        return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})
+        return reverse('projects:detail', kwargs={'pk': self.object.pk})
 
 
 class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -95,4 +108,4 @@ class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == project.owner
 
     def get_success_url(self):
-        return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})
+        return reverse('projects:detail', kwargs={'pk': self.object.pk})

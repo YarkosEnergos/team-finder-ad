@@ -1,11 +1,9 @@
-from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from .forms import EmailAuthenticationForm
-from .views import (UserListView, UserDetailView, UserSkillsView,
-                    UsersAddSkillsView, UsersRemoveSkillsView,
-                    RegisterCreateView, CustomPasswordChangeView,
-                    UserUpdateView
-                    )
+from django.urls import include, path
+from users.forms import EmailAuthenticationForm
+from users.views import (NewPasswordChangeView, RegisterCreateView,
+                         UserDetailView, UserListView, UsersAddSkillsView,
+                         UserSkillsView, UsersRemoveSkillsView, UserUpdateView)
 
 app_name = 'users'
 
@@ -17,7 +15,7 @@ urlpatterns = [
         ),
         name='login'
     ),
-    path('password_change/', CustomPasswordChangeView.as_view(),
+    path('password_change/', NewPasswordChangeView.as_view(),
          name='password_change'),
     path('list/', UserListView.as_view()),
     path('skills/', UserSkillsView.as_view()),

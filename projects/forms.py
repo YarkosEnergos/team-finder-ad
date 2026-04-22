@@ -1,8 +1,6 @@
+from common.validators import validate_github_url
 from django.forms import ModelForm
-from .models import Project
-from django.core.exceptions import ValidationError
-
-from urllib.parse import urlparse
+from projects.models import Project
 
 
 class ProjectModelForm(ModelForm):
@@ -13,16 +11,4 @@ class ProjectModelForm(ModelForm):
     def clean_github_url(self):
         github_url = self.cleaned_data.get('github_url')
 
-        if not github_url:
-            return github_url
-
-        parsed = urlparse(github_url)
-
-        if parsed.scheme not in ('http', 'https'):
-            raise ValidationError(
-                "Ссылка должна начинаться с http:// или https://")
-
-        if parsed.netloc not in ('github.com', 'www.github.com'):
-            raise ValidationError("Ссылка должна вести на github.com")
-
-        return github_url
+        return validate_github_url(github_url)

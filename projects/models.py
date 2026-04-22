@@ -1,16 +1,15 @@
-from django.db import models
+from common.constants import (PROJECT_NAME_LENGTH, PROJECT_STATUS_CHOICES,
+                              PROJECT_STATUS_LENGTH)
 from django.contrib.auth import get_user_model
-
-STATUS_CHOICES = [
-    ("open", "Открыт"),
-    ("closed", "Закрыт"),
-]
+from django.db import models
 
 User = get_user_model()
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=200, verbose_name='Название')
+    name = models.CharField(
+        max_length=PROJECT_NAME_LENGTH, verbose_name='Название'
+    )
     description = models.TextField(verbose_name='Описание')
     owner = models.ForeignKey(
         User,
@@ -19,12 +18,20 @@ class Project(models.Model):
         verbose_name='Владелец',
     )
     created_at = models.DateField(
-        auto_now_add=True, verbose_name='Дата создания')
-    github_url = models.URLField(blank=True, verbose_name='GitHub')
-    status = models.CharField(choices=STATUS_CHOICES,
-                              max_length=6, verbose_name='Статус')
+        auto_now_add=True,
+        verbose_name='Дата создания'
+    )
+    github_url = models.URLField(
+        blank=True,
+        verbose_name='GitHub'
+    )
+    status = models.CharField(
+        choices=PROJECT_STATUS_CHOICES,
+        max_length=PROJECT_STATUS_LENGTH, verbose_name='Статус'
+    )
     participants = models.ManyToManyField(
-        User, blank=True,
+        User,
+        blank=True,
         related_name="participated_projects",
         verbose_name='Участники'
     )
