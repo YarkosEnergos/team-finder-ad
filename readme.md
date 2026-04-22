@@ -1,107 +1,78 @@
-# Первоначальная настройка проекта TeamFinder
+Веб-приложение для поиска участников и создания команд для проектов.
 
-## 1. Виртуальное окружение
+# Описание проекта
 
-Перед началом работы необходимо создать и активировать виртуальное окружение Python.  
+Team Finder --- это современная платформа для поиска единомышленников.
+Проект позволяет разработчикам, дизайнерам и менеджерам объединяться в
+команды для реализации совместных идей и стартапов.
 
+# Стек технологий
 
-1. **Создайте виртуальное окружение (в папке проекта):**
-   ```bash
-   python3 -m venv venv
-   ```
+-   Python 3.10+
 
-   После этого появится папка `venv`, где будут храниться зависимости проекта.
+-   Django
 
-2. **Активируйте окружение:**
+-   PostgreSQL 16
 
-    - **Windows (PowerShell):**
-      ```bash
-      venv\Scripts\Activate.ps1
-      ```
-    - **Windows (cmd):**
-      ```bash
-      venv\Scripts\activate
-      ```
-    - **Linux/Mac:**
-      ```bash
-      source venv/bin/activate
-      ```
+-   Docker / Docker Compose
 
-3. **Установите зависимости из `requirements.txt`:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+-   Nginx
 
-   После установки в окружении будут доступны все нужные библиотеки Django-проекта.
+-   Gunicorn
 
-## 2. Создание `.env`
+# Установка и запуск
 
-Файл `.env` содержит конфиденциальные настройки проекта — ключ Django, параметры БД и другие переменные.  
+## 1. Клонирование репозитория
 
-Особое внимание обратите на строчку `TASK_VERSION=`. 
-Добавьте число, которое соответствует вашему варианту задания. 
-Этот параметр определяет, какие шаблоны использовать для сайта (из папок `templates_var1`/`templates_var2`/`templates_var3`).
-Лишние две папки не из вашего варианта можно удалить.
+git clone git@github.com:YarkosEnergos/team-finder-ad.git\
+cd team-finder-ad
 
-В репозитории есть пример `.env_example`, который нужно скопировать и заполнить:
+## 2. Настройка окружения (.env)
 
-```bash
-cp .env_example .env
-```
+Создайте файл .env в корне проекта. Пример заполнения:
 
-После этого откройте `.env` и укажите свои значения.  
+POSTGRES_DB=teamfinder\
+POSTGRES_USER=postgres\
+POSTGRES_PASSWORD=postgres\
+POSTGRES_HOST=db\
+POSTGRES_PORT=5432\
+SECRET_KEY=your_secret_key_here\
+DEBUG=1\
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-| Переменная            | Назначение                                                                                                                                                 |
-|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **DJANGO_SECRET_KEY** | Секретный ключ Django, используемый для подписи cookie и токенов. Можно сгенерировать при помощи `get_random_secret_key` из `django.core.management.utils` |
-| **DJANGO_DEBUG**      | Режим отладки. Установите `True` во время разработки.                                                                                                      |
-| **POSTGRES_DB**       | Имя базы данных PostgreSQL, которую будет использовать Django.                                                                                             |
-| **POSTGRES_USER**     | Имя пользователя PostgreSQL.                                                                                                                               |
-| **POSTGRES_PASSWORD** | Пароль пользователя PostgreSQL.                                                                                                                            |
-| **POSTGRES_HOST**     | Адрес сервера БД. В случае локальной разработки localhost.                                                                                                 |
-| **POSTGRES_PORT**     | Порт подключения к БД (по умолчанию `5432`).                                                                                                               |
-| **TASK_VERSION**      | Номер варианта вашего задания. Используется для определения набора HTML-шаблонов.                                                                          |
+## 3. Запуск проекта
 
----
+docker compose up -d \--build
 
-## 3. Запуск PostgreSQL
+## 4. Инициализация системы
 
-Для работы приложения **TeamFinder** используется база данных **PostgreSQL**.
-По условию задания база данных должна запускаться в контейнере Docker.
+1.  docker compose exec backend python manage.py migrate
 
-В проекте уже есть пример файла `docker-compose.yml`. 
-Используйте готовый или измените под свои нужды, а дальше запускайте:
+2.  docker compose exec backend python manage.py createsuperuser
 
-```bash
-docker compose up -d
-```
+3.  docker compose exec backend python manage.py collectstatic
+    \--noinput
 
-`-d` значит `detach`, то есть контейнер продолжит работать в фоне. Чтобы его остановить, надо будет ввести
+# Доступ к приложению
 
-```bash
-docker compose down
-```
+-   Сайт: http://localhost:8000
 
-Если возникает ошибка "permission denied while trying to connect to the Docker daemon socket", то может потребоваться добавить `sudo` перед командой.
+-   Админ-панель: http://localhost:8000/admin
 
----
+# Команды управления
 
-После этого база данных будет доступна по адресу `localhost:5432`.  
-Нужно будет использовать эти же параметры в файле `.env`.
+-   docker compose down (остановка)
 
-> Если на компьютере уже развёрнут сервер БД на порте 5432, и вы не хотите создавать БД для этого проекта на этом сервере, целесообразнее будет изменить порт на нестандартный.
-> Нестандартный порт нужно будет поставить слева в паре портов в docker-compose (`"5433":"5432"`) и в .env.
+-   docker compose down -v (остановка с очисткой БД)
 
-## 4. Запуск Django
+-   docker compose logs -f (просмотр логов)
 
-После заполнения `.env` и настройки базы данных можно запустить сервер разработки:
+-   docker compose exec backend bash (вход в контейнер)
 
-```bash
-python manage.py runserver
-```
+# Автор
 
-Теперь проект доступен по адресу [http://localhost:8000](http://localhost:8000). 
-Если видите ракету с надписью "The install worked successfully! Congratulations!", то запуск прошёл успешно, Django работает!
-Осталось всего ничего: реализовать весь проект!
+YarkosEnergos
 
-Если в процессе разработки способ развертывания приложения поменяется, обновите `readme.md` с пометкой ревьюеру, как запускать и проверять приложение.
+GitHub: https://github.com/YarkosEnergos
+
+Email: contact@example.com
