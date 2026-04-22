@@ -18,9 +18,11 @@ class Project(models.Model):
         related_name='owned_projects',
         verbose_name='Владелец',
     )
-    created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    created_at = models.DateField(
+        auto_now_add=True, verbose_name='Дата создания')
     github_url = models.URLField(blank=True, verbose_name='GitHub')
-    status = models.CharField(choices=STATUS_CHOICES, max_length=6, verbose_name='Статус')
+    status = models.CharField(choices=STATUS_CHOICES,
+                              max_length=6, verbose_name='Статус')
     participants = models.ManyToManyField(
         User, blank=True,
         related_name="participated_projects",

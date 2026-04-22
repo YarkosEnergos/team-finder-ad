@@ -1,5 +1,6 @@
 import json
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.contrib.auth.views import PasswordChangeView
 from django.http import JsonResponse
@@ -52,13 +53,10 @@ class UserSkillsView(View):
         return JsonResponse(data, safe=False)
 
 
-class UsersAddSkillsView(View):
+class UsersAddSkillsView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+
     def post(self, request, *args, **kwargs):
-
-        if not request.user.is_authenticated:
-            return JsonResponse({'status': 'error', 'message': 'Unauthorized'},
-                                status=401)
-
         if not request.user.id == int(self.kwargs['pk']):
             return JsonResponse({'status': 'error', 'message': 'Forbidden'},
                                 status=403)
@@ -92,7 +90,9 @@ class UsersAddSkillsView(View):
                              "created": created, "added": added})
 
 
-class UsersRemoveSkillsView(View):
+class UsersRemoveSkillsView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+
     def post(self, request, *args, **kwargs):
 
         if not request.user.is_authenticated:
@@ -128,15 +128,18 @@ class RegisterCreateView(CreateView):
         return redirect(self.success_url)
 
 
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    login_url = 'users:login'
+
     def get_success_url(self):
         return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = CustomUserChangeForm
     template_name = 'users/edit_profile.html'
+    login_url = 'users:login'
 
     def get_object(self):
         return self.request.user

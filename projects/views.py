@@ -1,4 +1,5 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import View
 from projects.models import Project
 from django.shortcuts import get_object_or_404
@@ -21,11 +22,10 @@ class ProjectDetailView(DetailView):
     context_object_name = 'project'
 
 
-class ProjectCompleteview(View):
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({"status": "error", "message": "Unauthorized"}, status=401)
+class ProjectCompleteview(LoginRequiredMixin, View):
+    login_url = 'users:login'
 
+    def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
 
         if request.user != project.owner:
@@ -39,11 +39,10 @@ class ProjectCompleteview(View):
         return JsonResponse({"status": "ok", "project_status": "closed"})
 
 
-class ProjectParticipate(View):
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({"status": "error", "message": "Unauthorized"}, status=401)
+class ProjectParticipate(LoginRequiredMixin, View):
+    login_url = 'users:login'
 
+    def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
 
         if request.user in project.participants.all():
@@ -55,10 +54,11 @@ class ProjectParticipate(View):
         return JsonResponse({"status": "ok", "participant": participant})
 
 
-class ProjectCreateView(CreateView):
+class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = Project
     form_class = ProjectModelForm
     template_name = 'projects/create-project.html'
+    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,16 +77,21 @@ class ProjectCreateView(CreateView):
         return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})
 
 
-class ProjectUpdateView(UpdateView):
+class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Project
     form_class = ProjectModelForm
     template_name = 'projects/create-project.html'
+    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['is_edit'] = True
         return context
+
+    def test_func(self):
+        project = self.get_object()
+        return self.request.user == project.owner
 
     def get_success_url(self):
         return reverse_lazy('projects:detail', kwargs={'pk': self.object.pk})

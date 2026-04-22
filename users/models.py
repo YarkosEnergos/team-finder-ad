@@ -1,6 +1,15 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+from django.core.files.base import ContentFile
+
+import os
+
+
+AVATAR_BG_COLOR = "#6C5CE7"
+
 
 class Skill(models.Model):
     name = models.CharField(max_length=124, verbose_name='Навык')
@@ -33,6 +42,47 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['name', 'surname']
 
     objects = UserManager()
+
+    def generate_avatar(self):
+
+        letter = self.name[0].upper()
+
+        size = 200
+        img = Image.new("RGB", (size, size), AVATAR_BG_COLOR)
+        draw = ImageDraw.Draw(img)
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        font_path = os.path.join(
+            current_dir, "Neue_Haas_Grotesk_Display_Pro_75_Bold.otf")
+
+        try:
+            font = ImageFont.truetype(font_path, 100)
+        except Exception as e:
+            print(f"Ошибка загрузки шрифта: {e}")
+            font = ImageFont.load_default()
+
+        bbox = draw.textbbox((0, 0), letter, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
+        position = (
+            (size - text_width) / 2 - bbox[0],
+            (size - text_height) / 2 - bbox[1]
+        )
+
+        draw.text(position, letter, fill="white", font=font)
+
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+
+        file_name = f"{self.email}_avatar.png"
+        self.avatar.save(file_name, ContentFile(buffer.getvalue()), save=False)
+
+    def save(self, *args, **kwargs):
+        if not self.avatar:
+            self.generate_avatar()
+
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Пользователь'

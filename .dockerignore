@@ -1,0 +1,7 @@
+venv/
+.git
+db.sqlite3
+.env
+readme.md
+/media/
+nginx/
