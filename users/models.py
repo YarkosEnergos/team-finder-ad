@@ -1,14 +1,15 @@
 import os
 from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+
+from django.contrib.auth.models import AbstractUser, UserManager
+from django.core.files.base import ContentFile
+from django.db import models
 
 from common.constants import (AVATAR_BG_COLOR, AVATAR_SIZE, BBOX_START,
                               FONT_SIZE, SKILL_NAME_LENGTH, TEXT_COLOR,
                               USER_ABOUT_LENGTH, USER_NAME_LENGTH,
                               USER_PHONE_LENGTH)
-from django.contrib.auth.models import AbstractUser, UserManager
-from django.core.files.base import ContentFile
-from django.db import models
-from PIL import Image, ImageDraw, ImageFont
 
 
 class Skill(models.Model):

@@ -1,14 +1,15 @@
 from http import HTTPStatus
 
-from common.constants import PROJECT_PAGINATE_COUNT, STATUS_CLOSED, STATUS_OPEN
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
+
 from projects.forms import ProjectModelForm
 from projects.models import Project
+from common.constants import PROJECT_PAGINATE_COUNT, STATUS_CLOSED, STATUS_OPEN
 
 
 class ProjectListView(ListView):
@@ -51,8 +52,6 @@ class ProjectCompleteview(LoginRequiredMixin, View):
 
 
 class ProjectParticipate(LoginRequiredMixin, View):
-    login_url = 'users:login'
-
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
 
@@ -72,7 +71,6 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = Project
     form_class = ProjectModelForm
     template_name = 'projects/create-project.html'
-    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,7 +93,6 @@ class ProjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Project
     form_class = ProjectModelForm
     template_name = 'projects/create-project.html'
-    login_url = 'users:login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,4 +1,5 @@
 from django.urls import path
+
 from projects.views import (ProjectCompleteview, ProjectCreateView,
                             ProjectDetailView, ProjectListView,
                             ProjectParticipate, ProjectUpdateView)

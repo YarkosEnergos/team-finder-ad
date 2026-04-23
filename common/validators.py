@@ -14,7 +14,7 @@ def validate_github_url(github_url):
         raise ValidationError(
             "Ссылка должна начинаться с http:// или https://")
 
-    if parsed.netloc not in (GIT_URL, 'www.' + GIT_URL):
+    if parsed.netloc not in (GIT_URL, f'www.{GIT_URL}'):
         raise ValidationError("Ссылка должна вести на github.com")
 
     return github_url

@@ -1,5 +1,5 @@
 from common.constants import (PROJECT_NAME_LENGTH, PROJECT_STATUS_CHOICES,
-                              PROJECT_STATUS_LENGTH)
+                              PROJECT_STATUS_LENGTH, STATUS_OPEN)
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -27,7 +27,9 @@ class Project(models.Model):
     )
     status = models.CharField(
         choices=PROJECT_STATUS_CHOICES,
-        max_length=PROJECT_STATUS_LENGTH, verbose_name='Статус'
+        max_length=PROJECT_STATUS_LENGTH,
+        default=STATUS_OPEN,
+        verbose_name='Статус'
     )
     participants = models.ManyToManyField(
         User,

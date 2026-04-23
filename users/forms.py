@@ -1,11 +1,13 @@
 import re
 
-from common.validators import validate_github_url
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+
+from common.validators import validate_github_url
+
 
 User = get_user_model()
 

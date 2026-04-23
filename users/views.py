@@ -1,7 +1,6 @@
 import json
 from http import HTTPStatus
 
-from common.constants import SKILL_COUNT_SHOW, USER_PAGINATE_COUNT
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
@@ -10,8 +9,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
+
 from users.forms import NewUserChangeForm, RegisterForm
 from users.models import Skill, User
+from common.constants import SKILL_COUNT_SHOW, USER_PAGINATE_COUNT
 
 
 class UserListView(ListView):
@@ -59,9 +60,10 @@ class UserSkillsView(View):
 class UsersAddSkillsView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if not request.user.id == int(self.kwargs['pk']):
-            return JsonResponse({'status': 'error', 'message': 'Forbidden'},
-                                status=403
-                                )
+            return JsonResponse(
+                {'status': 'error', 'message': 'Forbidden'},
+                status=HTTPStatus.FORBIDDEN
+            )
 
         body = json.loads(request.body)
         skill_id, name = body.get('skill_id'), body.get('name')

@@ -1,4 +1,4 @@
-GIT_URL = 'github.com'
+PLATFORM_URL = 'github.com'
 PROJECT_NAME_LENGTH = 200
 PROJECT_STATUS_LENGTH = 6
 PROJECT_PAGINATE_COUNT = 12
@@ -25,5 +25,5 @@ TEXT_COLOR = "white"
 
 
 LOGIN_PATH_URL = 'users:login'
-LOGOUT_PATH_REDIRECT_URL = '/projects/list/'
-LOGIN_PATH_REDIRECT_URL = '/projects/list/'
+LOGOUT_PATH_REDIRECT_URL = 'projects:list'
+LOGIN_PATH_REDIRECT_URL = 'projects:list'

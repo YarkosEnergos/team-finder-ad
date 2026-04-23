@@ -6,7 +6,7 @@ from django.urls import include, path
 
 
 def root_redirect(request):
-    return redirect('/project/list/')
+    return redirect('projects:list')
 
 
 urlpatterns = [
